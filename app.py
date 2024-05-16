@@ -2,7 +2,7 @@ from library import *
 from utils.constants import *
 from services.Database import Database
 from services.Coinmarketcap import CoinMarketCap
-from dotenv import dotenv_values
+# from dotenv import dotenv_values
 import json
 
 import streamlit_card as st_card
@@ -16,8 +16,9 @@ database = Database(worksheets=[
     ("EXCHANGES", 1)
 ])
 
-config = dotenv_values('.env')
-cmc = CoinMarketCap(config.get('MARKET_CAP_AP_KEY'))
+# config = dotenv_values('.env')
+# cmc = CoinMarketCap(config.get('MARKET_CAP_AP_KEY'))
+cmc = CoinMarketCap(MARKET_CAP_AP_KEY)
 
 # config = dotenv_values('.env')
 # binance = Binance(config.get('KEY'), config.get('SECRET_KEY'))
