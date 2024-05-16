@@ -1,11 +1,9 @@
 from library import *
 from utils.constants import *
 from services.Database import Database
-from services.Binance import Binance
 from services.Coinmarketcap import CoinMarketCap
 from dotenv import dotenv_values
 import json
-import pprint
 
 import streamlit_card as st_card
 
