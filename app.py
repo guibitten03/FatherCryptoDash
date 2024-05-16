@@ -1,7 +1,11 @@
 from library import *
 from utils.constants import *
 from services.Database import Database
-# from services.Binance import Binance
+from services.Binance import Binance
+from services.Coinmarketcap import CoinMarketCap
+from dotenv import dotenv_values
+import json
+import pprint
 
 import streamlit_card as st_card
 
@@ -9,10 +13,16 @@ st.set_page_config(layout="wide")
 
 # ======= DATABASE IMPORT ======= #
 database = Database(worksheets=[
-    ("DATA", 9),
+    ("DATA", 10),
     ("COINS", 2),
     ("EXCHANGES", 1)
 ])
+
+config = dotenv_values('.env')
+cmc = CoinMarketCap(config.get('MARKET_CAP_AP_KEY'))
+
+# config = dotenv_values('.env')
+# binance = Binance(config.get('KEY'), config.get('SECRET_KEY'))
 
 register_sheet = database.worksheets["DATA"].dropna(how="all")
 coin_sheet = database.worksheets["COINS"].dropna(how="all")
@@ -22,15 +32,44 @@ exchange_sheet = database.worksheets["EXCHANGES"].dropna(how="all")
 
 # ======= INPUT DATA ======= #
  
-st.title("📊 Transactions Analysis")
+st.title("📊 Análise de Transações")
+
+btn_1, btn_2 = st.columns(2, gap="medium")
+
+with btn_1:
+    st.link_button("Acesse a planilha de operações", url=SHEET_LINK)
+
+with btn_2:
+    update_price_coins = st.button("Atualizar preço das moedas")
+
+if update_price_coins:
+    coins_to_update_price = register_sheet['Coin'].drop_duplicates(keep="first").values
+
+    current_prices = []
+    for coin_to_up in coins_to_update_price:
+        data = cmc.get_coin_price(coin=coin_to_up)
+        currrent_coin_price = json.loads(data)['data'][coin_to_up][0]['quote']['USD']['price']
+        current_prices.append(currrent_coin_price)
+
+    coins_price = {coins_to_update_price[i]: current_prices[i] for i in range(len(current_prices))}
+
+    coin_price_mapped = [coins_price[coin_to_map] for coin_to_map in register_sheet['Coin'].values]
+
+    register_sheet['Preço Atual (U$)'] = coin_price_mapped
+    register_sheet['Preço Atual (R$)'] = [i * DOLAR_PRICE for i in coin_price_mapped]
+
+    database.conn.update(worksheet="DATA", data=register_sheet)
+
+    st.success("Valores das moedas atualizadas com sucesso!")
+
 
 input_c1, input_c2 = st.columns(2, gap="medium")
 
 with input_c1:
-    exchange = st.selectbox("Select Exchange", options=exchange_sheet['Exchange'].values)
+    exchange = st.selectbox("Selecione a Corretora", options=exchange_sheet['Exchange'].values)
 
 with input_c2:
-    coin = st.selectbox("Select Coin", options=coin_sheet['Nickname'].values, index=False)
+    coin = st.selectbox("Selecione a Moeda", options=coin_sheet['Nickname'].values, index=False)
 
 st.divider()
 
@@ -42,10 +81,10 @@ line_filtered_df = exchange_filtered[(exchange_filtered['Coin'] == coin) & (exch
 
 # @GUARD-CLAUSE
 if len(line_filtered_df) == 0: 
-    st.markdown(f"<h1 style='text-align: center;' >🔴 There is not transactions of coin {coin} in exchange {exchange} 🔴</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='text-align: center;' >🔴 Não existe transações da moeda {coin} na corretora {exchange} 🔴</h1>", unsafe_allow_html=True)
     
 else:
-    mean_price = line_filtered_df['Income'].sum() / line_filtered_df['Amount'].sum()
+    mean_price = line_filtered_df['Valor Investido (R$)'].sum() / line_filtered_df['Qte'].sum()
 
     line_filtered_df['Mean Price'] = [mean_price for x in range(line_filtered_df.shape[0])]
 
@@ -64,25 +103,25 @@ else:
     with card_col_1:
         dollar_mean_price = st_card.card(
             title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / 5),
-            text = "Dollar Mean Price",
+            text = "Preço Médio em Dólar",
             styles=card_style
         )
 
     with card_col_2:
         real_mean_price = st_card.card(
             title = "%.10f R$" % (line_filtered_df['Mean Price'].iloc[0]),
-            text = "Real Mean Price",
+            text = "Preço Médio em Real",
             styles=card_style
-        )
+        )  
 
     c1, c2 = st.columns(2, gap="small")
 
     with c1:
-        line_purchase = go.Scatter(x=line_filtered_df['Data'], y=line_filtered_df['Price (R$)'], name='Purchase Price', mode='lines')
-        line_mean = go.Scatter(x=line_filtered_df['Data'], y=line_filtered_df['Mean Price'], name='Mean Price', mode='lines')
+        line_purchase = go.Scatter(x=line_filtered_df['Data'], y=line_filtered_df['Preço (R$)'], name='Preços de Compra', mode='lines')
+        line_mean = go.Scatter(x=line_filtered_df['Data'], y=line_filtered_df['Mean Price'], name='Preço Médio', mode='lines')
 
         layout = go.Layout(
-            title='Purchase History and Mean Price',
+            title='Histórico de Compras e Preço Médio de Compra',
             xaxis=dict(title='Data'),
             yaxis=dict(title='Price (R$)'),
             hovermode='closest',
@@ -97,16 +136,16 @@ else:
             st.plotly_chart(fig)
 
     bar_filtered_df = register_sheet[(register_sheet['Coin'] == coin)]
-    bar_filtered_df = bar_filtered_df.groupby(by="Status")['Income'].sum().reset_index()
+    bar_filtered_df = bar_filtered_df.groupby(by="Status")['Valor Investido (R$)'].sum().reset_index()
 
     with c2:
-        bar_purchase = go.Bar(x=['Buy'], y=bar_filtered_df[['Income']].iloc[0,:], name='Purchase', marker=dict(color='red'))
+        bar_purchase = go.Bar(x=['Buy'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[0,:], name='Purchase', marker=dict(color='red'))
 
         try:
-            bar_sellof = go.Bar(x=['Sell'], y=bar_filtered_df[['Income']].iloc[1,:], name='Sale', marker=dict(color='green'))
+            bar_sellof = go.Bar(x=['Sell'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[1,:], name='Sale', marker=dict(color='green'))
 
             layout = go.Layout(
-                title='Purchase and Sale Volum',
+                title='Valor (R$) Total Comprado e Vendido',
                 xaxis=dict(title='Coin'),
                 yaxis=dict(title='Values'),
                 barmode='group', 
@@ -121,3 +160,5 @@ else:
         with st.container(border=True):
             st.plotly_chart(fig)
 
+
+    

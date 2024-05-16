@@ -14,7 +14,8 @@ COINS = [
 
 OPS = [
     "Buy",
-    "Sell"
+    "Sell",
+    "Rebuy"
 ]
 
 FUND = [
@@ -26,3 +27,9 @@ EXCHANGES = [
     "Binance",
     "EQI",
 ]
+
+INITIAL_INCOME = 9600
+
+SHEET_LINK = "https://docs.google.com/spreadsheets/d/13yhssGVB_1DC-CWYl7zO5jusD5caopSGbs6Plx--gD8/edit?usp=sharing"
+
+DOLAR_PRICE = 5.2
