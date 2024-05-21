@@ -2,6 +2,7 @@ from library import *
 from utils.constants import *
 from services.Database import Database
 from services.Style import Style
+from services.FiatPrice import FiatPrices
 
 import datetime
 
@@ -19,7 +20,10 @@ database = Database(worksheets=[
     ("EXCHANGES", 1)
 ])
 
-
+fp = FiatPrices()
+dolar_price_in_real = fp.get_fiat_price()
+if dolar_price_in_real == 0.0:
+    dolar_price_in_real = 5
 
 register_sheet = database.worksheets["DATA"].dropna(how="all")
 coin_sheet = database.worksheets["COINS"].dropna(how="all")
@@ -46,15 +50,15 @@ with operation_r:
     if price != None:
         if price_fund:
             dolar_price = price
-            price = price * 5
+            price = price * dolar_price_in_real
         else:
-            dolar_price = price / 5
+            dolar_price = price / dolar_price_in_real
 
     amount = 0.0
     if price != None and income != None:
         amount = income / price
         if income_fund:
-            income = income * 5
+            income = income * dolar_price_in_real
 
     exchange = st.selectbox("Select Exchange", options=EXCHANGES)
 

@@ -2,7 +2,7 @@ from library import *
 from utils.constants import *
 from services.Database import Database
 from services.Coinmarketcap import CoinMarketCap
-# from dotenv import dotenv_values
+from services.FiatPrice import FiatPrices
 import json
 
 import streamlit_card as st_card
@@ -16,9 +16,12 @@ database = Database(worksheets=[
     ("EXCHANGES", 1)
 ])
 
-# config = dotenv_values('.env')
-# cmc = CoinMarketCap(config.get('MARKET_CAP_AP_KEY'))
 cmc = CoinMarketCap(MARKET_CAP_AP_KEY)
+
+fp = FiatPrices()
+dolar_price_in_real = fp.get_fiat_price()
+if dolar_price_in_real == 0.0:
+    dolar_price_in_real = 5
 
 # config = dotenv_values('.env')
 # binance = Binance(config.get('KEY'), config.get('SECRET_KEY'))
@@ -87,7 +90,7 @@ else:
 
     line_filtered_df['Mean Price'] = [mean_price for x in range(line_filtered_df.shape[0])]
 
-    card_col_1, card_col_2 = st.columns(2, gap="small")
+    card_col_1, card_col_2, card_col_3 = st.columns(3, gap="small")
 
     card_style = {
         "card":{
@@ -101,7 +104,7 @@ else:
 
     with card_col_1:
         dollar_mean_price = st_card.card(
-            title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / 5),
+            title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real),
             text = "Preço Médio em Dólar",
             styles=card_style
         )
@@ -112,6 +115,14 @@ else:
             text = "Preço Médio em Real",
             styles=card_style
         )  
+
+    with card_col_3:
+        dolar_price = st_card.card(
+            title = f"{dolar_price_in_real} R$",
+            text = "Preço Dolar em Real",
+            styles=card_style
+        )  
+
 
     c1, c2 = st.columns(2, gap="small")
 

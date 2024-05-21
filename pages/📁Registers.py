@@ -6,6 +6,7 @@ st.set_page_config(layout="wide")
 st.title("📁 Operações Registradas")
 st.markdown("Você pode ver todos as operações registradas abaixo!")
 
+
 database = Database(worksheets=[
     ("DATA", 10),
     ("COINS", 2),
