@@ -20,10 +20,11 @@ database = Database(worksheets=[
     ("EXCHANGES", 1)
 ])
 
-fp = FiatPrices()
-dolar_price_in_real = fp.get_fiat_price()
-if dolar_price_in_real == 0.0:
-    dolar_price_in_real = 5
+# fp = FiatPrices()
+# dolar_price_in_real = fp.get_fiat_price()
+# if dolar_price_in_real == 0.0:
+#     dolar_price_in_real = 5
+dolar_price_in_real = 5
 
 register_sheet = database.worksheets["DATA"].dropna(how="all")
 coin_sheet = database.worksheets["COINS"].dropna(how="all")
