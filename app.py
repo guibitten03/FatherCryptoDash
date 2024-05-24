@@ -97,6 +97,7 @@ else:
         "card":{
             "width": "100%",
             "height": "100px",
+            "padding": "15px",
             "border-radius": "10px",
             "box-shadow": "0 0 10px rgba(218,165,32,0.5)",
         },
@@ -143,6 +144,8 @@ else:
         )
 
         fig = go.Figure(data=[line_purchase, line_mean], layout=layout)
+        fig.update_layout(autosize=True)
+
         with st.container(border=True):
             st.plotly_chart(fig)
 
@@ -167,6 +170,8 @@ else:
             fig = go.Figure(data=[bar_purchase, bar_sellof], layout=layout)
         except:
             fig = go.Figure(data=[bar_purchase], layout=layout)
+
+        fig.update_layout(autosize=True)
 
         with st.container(border=True):
             st.plotly_chart(fig)
