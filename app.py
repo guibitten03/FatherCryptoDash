@@ -5,8 +5,6 @@ from services.Coinmarketcap import CoinMarketCap
 from services.FiatPrice import FiatPrices
 import json
 
-import streamlit_card as st_card
-
 st.set_page_config(layout="wide")
 
 # ======= DATABASE IMPORT ======= #
@@ -22,14 +20,27 @@ fp = FiatPrices()
 dolar_price_in_real = fp.get_fiat_price()
 if dolar_price_in_real == 0.0:
     dolar_price_in_real = 5
-# dolar_price_in_real = 5
-
-# config = dotenv_values('.env')
-# binance = Binance(config.get('KEY'), config.get('SECRET_KEY'))
 
 register_sheet = database.worksheets["DATA"].dropna(how="all")
 coin_sheet = database.worksheets["COINS"].dropna(how="all")
 exchange_sheet = database.worksheets["EXCHANGES"].dropna(how="all")
+
+def get_amount_coins(line_filtered_df):
+    amout_buyed = line_filtered_df.loc[line_filtered_df['Status'] == "Buy"]['Qte']
+    amout_sold = line_filtered_df.loc[line_filtered_df['Status'] == "Sell"]['Qte']
+    amount_reinvested = line_filtered_df.loc[line_filtered_df['Status'] == "Rebuy"]['Qte']
+
+    if len(amout_buyed): amout_buyed = amout_buyed.sum() 
+    else: amout_buyed = 0.0      
+
+    if len(amout_sold): amout_sold = amout_sold.sum() 
+    else: amout_sold = 0.0   
+
+    if len(amount_reinvested): amount_reinvested = amount_reinvested.sum() 
+    else: amount_reinvested = 0.0     
+
+    total_amount = amout_buyed + amount_reinvested - amout_sold
+    return total_amount
 
 # ======= =============== ======= #
 
@@ -93,38 +104,6 @@ else:
 
     card_col_1, card_col_2, card_col_3 = st.columns(3, gap="small")
 
-    # card_style = {
-    #     "card":{
-    #         "width": "100%",
-    #         "height": "100px",
-    #         "padding": "15px",
-    #         "border-radius": "10px",
-    #         "box-shadow": "0 0 10px rgba(218,165,32,0.5)",
-    #     },
-    # }
-
-
-    # with card_col_1:
-    #     dollar_mean_price = st_card.card(
-    #         title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real),
-    #         text = "Preço Médio em Dólar",
-    #         styles=card_style
-    #     )
-
-    # with card_col_2:
-    #     real_mean_price = st_card.card(
-    #         title = "%.10f R$" % (line_filtered_df['Mean Price'].iloc[0]),
-    #         text = "Preço Médio em Real",
-    #         styles=card_style
-    #     )  
-
-    # with card_col_3:
-    #     dolar_price = st_card.card(
-    #         title = f"{dolar_price_in_real} R$",
-    #         text = "Preço Dolar em Real",
-    #         styles=card_style
-    #     )  
-
     with card_col_1:
         with st.container(border=True):
             title = st.markdown("### %.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real))
@@ -164,27 +143,43 @@ else:
         with st.container(border=True):
             st.plotly_chart(fig)
 
-    bar_filtered_df = register_sheet[(register_sheet['Coin'] == coin)]
-    bar_filtered_df = bar_filtered_df.groupby(by="Status")['Valor Investido (R$)'].sum().reset_index()
+    coin_filtered = register_sheet[(register_sheet['Coin'] == coin)]
+
+    bar_filtered_df = coin_filtered.groupby(by="Status")['Valor Investido (R$)'].sum().reset_index()
 
     with c2:
-        bar_purchase = go.Bar(x=['Buy'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[0,:], name='Purchase', marker=dict(color='red'))
-
+        bar_plots = []
+        bar_purchase = go.Bar(x=['Comprado'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[0,:], name='Comprado', marker=dict(color='green'))
+        bar_plots.append(bar_purchase)
+       
         try:
-            bar_sellof = go.Bar(x=['Sell'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[1,:], name='Sale', marker=dict(color='green'))
+            bar_sellof = go.Bar(x=['Vendido'], y=bar_filtered_df[['Valor Investido (R$)']].iloc[1,:], name='Vendido', marker=dict(color='red'))
 
-            layout = go.Layout(
+            bar_plots.append(bar_sellof)
+        except:
+            pass
+        
+        try:
+            
+            total_amount = get_amount_coins(coin_filtered)
+
+            total_amount = total_amount * coin_filtered['Preço Atual (R$)'].values[0]
+
+            bar_non_realized = go.Bar(x=['Não Realizado'], y=[total_amount], name="Não Realizado", marker=dict(color='blue'))
+
+            bar_plots.append(bar_non_realized)
+        except:
+            pass
+
+        layout = go.Layout(
                 title='Valor (R$) Total Comprado e Vendido',
-                xaxis=dict(title='Coin'),
-                yaxis=dict(title='Values'),
+                xaxis=dict(title='Operação'),
+                yaxis=dict(title='Quantidade (R$)'),
                 barmode='group', 
                 margin=dict(l=20, r=20, b=20, t=40),
                 legend=dict(orientation='h'), 
             )
-
-            fig = go.Figure(data=[bar_purchase, bar_sellof], layout=layout)
-        except:
-            fig = go.Figure(data=[bar_purchase], layout=layout)
+        fig = go.Figure(data=bar_plots, layout=layout)
 
         fig.update_layout(autosize=True)
 
@@ -192,4 +187,12 @@ else:
             st.plotly_chart(fig)
 
 
-    
+    st.divider()
+
+    st.markdown("## Análise On-Chain")
+
+    total_amount = get_amount_coins(coin_filtered)
+
+    with st.container(border=True):
+        st.markdown(f"### {total_amount}")
+        st.text("Quantidade de moedas em carteira")
