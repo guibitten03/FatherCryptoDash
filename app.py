@@ -93,37 +93,52 @@ else:
 
     card_col_1, card_col_2, card_col_3 = st.columns(3, gap="small")
 
-    card_style = {
-        "card":{
-            "width": "100%",
-            "height": "100px",
-            "padding": "15px",
-            "border-radius": "10px",
-            "box-shadow": "0 0 10px rgba(218,165,32,0.5)",
-        },
-    }
+    # card_style = {
+    #     "card":{
+    #         "width": "100%",
+    #         "height": "100px",
+    #         "padding": "15px",
+    #         "border-radius": "10px",
+    #         "box-shadow": "0 0 10px rgba(218,165,32,0.5)",
+    #     },
+    # }
 
+
+    # with card_col_1:
+    #     dollar_mean_price = st_card.card(
+    #         title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real),
+    #         text = "Preço Médio em Dólar",
+    #         styles=card_style
+    #     )
+
+    # with card_col_2:
+    #     real_mean_price = st_card.card(
+    #         title = "%.10f R$" % (line_filtered_df['Mean Price'].iloc[0]),
+    #         text = "Preço Médio em Real",
+    #         styles=card_style
+    #     )  
+
+    # with card_col_3:
+    #     dolar_price = st_card.card(
+    #         title = f"{dolar_price_in_real} R$",
+    #         text = "Preço Dolar em Real",
+    #         styles=card_style
+    #     )  
 
     with card_col_1:
-        dollar_mean_price = st_card.card(
-            title = "%.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real),
-            text = "Preço Médio em Dólar",
-            styles=card_style
-        )
+        with st.container(border=True):
+            title = st.markdown("### %.10f $" % (line_filtered_df['Mean Price'].iloc[0] / dolar_price_in_real))
+            text = st.text("Preço Médio em Dólar")
 
     with card_col_2:
-        real_mean_price = st_card.card(
-            title = "%.10f R$" % (line_filtered_df['Mean Price'].iloc[0]),
-            text = "Preço Médio em Real",
-            styles=card_style
-        )  
+        with st.container(border=True):
+            title = st.markdown("### %.10f R$" % (line_filtered_df['Mean Price'].iloc[0]))
+            text = st.text("Preço Médio em Real")
 
     with card_col_3:
-        dolar_price = st_card.card(
-            title = f"{dolar_price_in_real} R$",
-            text = "Preço Dolar em Real",
-            styles=card_style
-        )  
+        with st.container(border=True):
+            title = st.markdown(f"### {dolar_price_in_real} R$")
+            text = st.text("Preço Dolar em Real")
 
 
     c1, c2 = st.columns(2, gap="small")
