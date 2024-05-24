@@ -18,11 +18,11 @@ database = Database(worksheets=[
 
 cmc = CoinMarketCap(MARKET_CAP_AP_KEY)
 
-# fp = FiatPrices()
-# dolar_price_in_real = fp.get_fiat_price()
-# if dolar_price_in_real == 0.0:
-#     dolar_price_in_real = 5
-dolar_price_in_real = 5
+fp = FiatPrices()
+dolar_price_in_real = fp.get_fiat_price()
+if dolar_price_in_real == 0.0:
+    dolar_price_in_real = 5
+# dolar_price_in_real = 5
 
 # config = dotenv_values('.env')
 # binance = Binance(config.get('KEY'), config.get('SECRET_KEY'))
