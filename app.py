@@ -50,8 +50,8 @@ st.title("📊 Análise de Transações")
 
 btn_1, btn_2 = st.columns(2, gap="medium")
 
-with btn_1:
-    st.link_button("Acesse a planilha de operações", url=SHEET_LINK)
+# with btn_1:
+#     st.link_button("Acesse a planilha de operações", url=SHEET_LINK)
 
 with btn_2:
     update_price_coins = st.button("Atualizar preço das moedas")
