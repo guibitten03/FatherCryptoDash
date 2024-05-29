@@ -98,6 +98,7 @@ if len(line_filtered_df) == 0:
     st.markdown(f"<h1 style='text-align: center;' >🔴 Não existe transações da moeda {coin} na corretora {exchange} 🔴</h1>", unsafe_allow_html=True)
     
 else:
+
     mean_price = line_filtered_df['Valor Investido (R$)'].sum() / line_filtered_df['Qte'].sum()
 
     line_filtered_df['Mean Price'] = [mean_price for x in range(line_filtered_df.shape[0])]
