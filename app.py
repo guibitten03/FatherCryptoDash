@@ -91,7 +91,7 @@ st.divider()
 
 exchange_filtered = register_sheet[register_sheet['Exchange'] == exchange]
 
-line_filtered_df = exchange_filtered[(exchange_filtered['Coin'] == coin) & (exchange_filtered['Status'] == "Buy")]
+line_filtered_df = exchange_filtered[(exchange_filtered['Coin'] == coin) & ((exchange_filtered['Status'] == "Buy") | (exchange_filtered['Status'] == "Rebuy"))]
 
 # @GUARD-CLAUSE
 if len(line_filtered_df) == 0: 
