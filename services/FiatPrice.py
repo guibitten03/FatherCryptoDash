@@ -12,7 +12,7 @@ class FiatPrices:
         response = requests.get(url=self.url.format(fiat_coin_pair_1 + "-" + fiat_coin_pair_2))
         data = response.json()
 
-        price = 0.0
+        price = 5.5
         if data[fiat_coin_pair_1+fiat_coin_pair_2]:
             price = data[fiat_coin_pair_1+fiat_coin_pair_2]['high']
             
