@@ -3,4 +3,4 @@ st-gsheets-connection
 pandas
 plotly
 streamlit-option-menu
-dotenv
+python-dotenv
