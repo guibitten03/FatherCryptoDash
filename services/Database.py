@@ -1,4 +1,5 @@
-from library import *
+import streamlit as st
+from streamlit_gsheets import GSheetsConnection
 
 class Database:
     def __init__(self, worksheets: list = []):

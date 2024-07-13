@@ -1,4 +1,4 @@
-from library import *
+import streamlit as st
 
 class Style:
     def __init__(self, path=""):

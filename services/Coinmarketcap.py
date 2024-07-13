@@ -1,5 +1,4 @@
-from requests import Request, Session
-import json
+from requests import Session
 
 class CoinMarketCap:
     def __init__(self, api_key:str=""):
