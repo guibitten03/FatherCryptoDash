@@ -39,6 +39,7 @@ class Cookies:
 
             except Exception as e:
                 print(f"There is no possible connect with CoinMarketCap. ERROR: {e}")
+                
 
     def fiatprices_cookie(self):
         if 'fiat_price' not in st.session_state:

@@ -23,6 +23,7 @@ class CoinMarketCap:
         try:
             response = session.get(url, params=parameters)
             return response.text
+        
         except Exception as e:
             print(e)
             return 
