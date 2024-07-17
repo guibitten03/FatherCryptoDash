@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import plotly.graph_objects as go
+import pandas as pd
 
 from utils.functions import get_amount_coins
 from utils.constants import *
@@ -66,7 +67,9 @@ def home_page():
 
             mean_price = line_filtered_df['Valor Investido (R$)'].sum() / line_filtered_df['Qte'].sum()
 
-            line_filtered_df['Mean Price'] = [mean_price for x in range(line_filtered_df.shape[0])]
+            mean_price_col = [mean_price] * line_filtered_df.shape[0]
+
+            line_filtered_df.insert(0, "Mean Price", mean_price_col)
 
             card_col_1, card_col_2, card_col_3 = st.columns(3, gap="small")
 
