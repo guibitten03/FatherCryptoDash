@@ -17,7 +17,7 @@ def home_page():
         input_c1, input_c2 = st.columns(2, gap="medium")
 
         with input_c1:
-            exchange = st.selectbox("Selecione a Corretora", options=st.session_state['exchange_sheet']['Exchange'].values)
+            exchange = st.selectbox("Selecione a Corretora", options=st.session_state['exchange_sheet']['Exchange'].values, index=False)
 
         with input_c2:
             coin = st.selectbox("Selecione a Moeda", options=st.session_state['coin_sheet']['Nickname'].values, index=False)
@@ -33,9 +33,17 @@ def home_page():
 
             current_prices = []
             for coin_to_up in coins_to_update_price:
+
                 data = st.session_state['cmc'].get_coin_price(coin=coin_to_up)
                 currrent_coin_price = json.loads(data)['data'][coin_to_up][0]['quote']['USD']['price']
                 current_prices.append(currrent_coin_price)
+
+                # try:
+                #     data = st.session_state['cmc'].get_coin_price(coin=coin_to_up)
+                #     currrent_coin_price = json.loads(data)['data'][coin_to_up][0]['quote']['USD']['price']
+                #     current_prices.append(currrent_coin_price)
+                # except Exception as e:
+                #     current_prices.append(1)
 
             coins_price = {coins_to_update_price[i]: current_prices[i] for i in range(len(current_prices))}
 
@@ -197,7 +205,7 @@ def home_page():
 
             total_amount = get_amount_coins(coin_filtered)
 
-            c1, c2 = st.columns(2, gap='medium')
+            c1, c2, c3 = st.columns(3, gap='medium')
 
             with c1:
                 with st.container(border=True):
@@ -207,22 +215,26 @@ def home_page():
             with c2:
                 with st.container(border=True):
                     st.text(f"Preço Pago por Moeda: ")
-                    st.markdown(f"###  {mean_price} R$")
+                    st.markdown(f"###  {mean_price:.02f} R$")
+                                
+            with c3:
+                with st.container(border=True):
                     st.text(f"Preço Atual da Moeda:")
-                    st.markdown(f"### {coin_filtered['Preço Atual (R$)'].values[0]} R$")
+                    st.markdown(f"### {coin_filtered['Preço Atual (R$)'].values[0]:.02f} R$")
+
 
 
     with tab2:
 
         st.markdown("## Análise de Carteira")
 
-        coin_current_price = exchange_filtered[['Coin', 'Preço Atual (R$)']].drop_duplicates('Coin', keep='first')
+        coin_current_price = st.session_state['register_sheet'][['Coin', 'Preço Atual (R$)']].drop_duplicates('Coin', keep='first')
         coin_current_price = {coin:price for coin, price in zip(coin_current_price['Coin'], coin_current_price['Preço Atual (R$)'])}
 
-        buy_df = exchange_filtered[exchange_filtered['Status'] == 'Buy']
+        buy_df = st.session_state['register_sheet'][st.session_state['register_sheet']['Status'] == 'Buy']
         buy_df = buy_df.groupby('Coin')['Qte'].sum().reset_index()
 
-        sell_df = exchange_filtered[exchange_filtered['Status'] == 'Sell']
+        sell_df = st.session_state['register_sheet'][st.session_state['register_sheet']['Status'] == 'Sell']
         sell_df = sell_df.groupby('Coin')['Qte'].sum().reset_index()
 
         coin_current_amout = {}
@@ -261,10 +273,12 @@ def home_page():
         with st.container(border=True):
             wallet_value_1, wallet_value_2, wallet_value_3 = st.columns(3, gap='medium')
 
+            revenue_total = st.session_state['revenue_sheet']['Amount'].sum()
+
             with wallet_value_1:
                 with st.container(border=True):
                     st.text("Valor Total de Aportes")
-                    st.markdown(f"### {INITIAL_INCOME[0]} R$")
+                    st.markdown(f"### {revenue_total} R$")
 
             with wallet_value_2:
                 with st.container(border=True):
@@ -274,7 +288,7 @@ def home_page():
             with wallet_value_3:
                 with st.container(border=True):
                     st.text("Valorização Média da Carteira")
-                    valuation = total_capital / INITIAL_INCOME[0]
+                    valuation = total_capital / revenue_total
                     if valuation > 1.00:
                         st.markdown(f"### % {valuation:.2f} 🟢")
                     else:
@@ -288,6 +302,44 @@ def home_page():
         with c1_wallet:
             with st.container(border=True):
                 st.plotly_chart(fig)
+
+
+        with c2_wallet:
+            with st.container(border=True):
+                fiat_amount = st.session_state['register_sheet'][st.session_state['register_sheet']['Coin'].isin([
+                    'USDT', 'USDC', 'BRL'
+                ])]
+
+                fiat_amount = round((fiat_amount['Qte'] * fiat_amount['Preço Atual (R$)']).sum(), 2)
+
+                wallet_amount = st.session_state['register_sheet'][~st.session_state['register_sheet']['Coin'].isin([
+                    'USDT', 'USDC', 'BRL'
+                ])]
+
+                wallet_amount = round((wallet_amount['Qte'] * wallet_amount['Preço Atual (R$)']).sum(), 2)
+
+                box_bar = go.Figure(data=[go.Bar(x=["Caixa", "Carteira"], y=[fiat_amount, wallet_amount])])
+
+                box_bar.add_trace(go.Scatter(
+                    x=["Caixa", "Carteira"], 
+                    y=[fiat_amount, wallet_amount],
+                    text=[fiat_amount, wallet_amount],
+                    mode='text',
+                    textposition='top center',
+                    textfont=dict(
+                        size=18,
+                    ),
+                    showlegend=False
+                ))
+
+                box_bar.update_layout(
+                    title='Caixa x Carteira',
+                    xaxis_title='Investido em',
+                    yaxis_title='Valor Total (R$)'
+                )
+
+                st.plotly_chart(box_bar)
+
 
 
         

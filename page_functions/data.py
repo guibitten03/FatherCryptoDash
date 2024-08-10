@@ -1,106 +1,85 @@
 import streamlit as st
-import pandas as pd
-
-from utils.constants import *
 
 def data_page():
-    st.title("🖋️ Cadastrar operações, moedas ou corretoras novas")
-    st.markdown("Insira as informações nos formulários abaixo...")
+    st.title("📁 Operações Registradas")
+    st.markdown("Você pode ver todos as operações registradas abaixo!")
 
-    operation_r, coins_r, exchange_r = st.tabs(["Registrar Operação", "Registrar Moeda", "Registrar Corretora"])
+    f_c1, f_c2 = st.columns([3, 1], gap="small")
+    
+    with f_c1:
+        with st.container(border=True):
+            st.markdown("<h1 style='text-align: center; '>Operações Registradas</h1>", unsafe_allow_html=True)
 
-    with operation_r:
-        data = st.date_input("Trade date")
-        coin = st.selectbox("Select coin", options=st.session_state['coin_sheet']['Nickname'].values, index=False)
-        price = st.number_input("Coin Price", step=0.01, format="%.10f", value=None)
-        income = st.number_input("Value Invested", step=0.01, value=None)
+            st.divider()
 
-        c1, c2 = st.columns(2, gap="small")
+            edit_data_register = st.data_editor(st.session_state['register_sheet'], hide_index=True)
+            
+            submit_btn_register = st.button(label="Atualizar dados de operações...")
+            
+            if submit_btn_register:
+                try:
+                    st.session_state['database'].conn.update(worksheet="DATA", data=edit_data_register)
+                    st.success("Tabela atualizada com sucesso!")
 
-        with c1:
-            status = st.selectbox("Operation", options=OPS, index=False)
+                except:
+                    st.warning("Tabela não atualizada!")
+                    st.stop()
 
-        with c2:
-            price_fund = st.toggle("Price in Dollar?")
-            income_fund = st.toggle("Income in Dollar?")
+    with f_c2:
+        with st.container(border=True):
+            st.markdown("<h1 style='text-align: center; '>Aportes Registrados</h1>", unsafe_allow_html=True)
 
-        dolar_price = 0.0
-        if price != None:
-            if price_fund:
-                dolar_price = price
-                price = price * st.session_state['dolar_price']
-            else:
-                dolar_price = price / st.session_state['dolar_price']
+            st.divider()
 
-        amount = 0.0
-        if price != None and income != None:
-            if income_fund:
-                income = income * st.session_state['dolar_price']
-            amount = income / price
+            edit_data_revenue = st.data_editor(st.session_state['revenue_sheet'], hide_index=True)
+            
+            submit_btn_revenue = st.button(label="Atualizar dados de aportes...")
+            
+            if submit_btn_revenue:
+                try:
+                    st.session_state['database'].conn.update(worksheet="REVENUE", data=edit_data_revenue)
+                    st.success("Tabela atualizada com sucesso!")
 
-        exchange = st.selectbox("Select Exchange", options=EXCHANGES)
+                except:
+                    st.warning("Tabela não atualizada!")
+                    st.stop()
 
-        register = st.button("Register")
+    c1, c2 = st.columns(2, gap="small")
 
-        if register:
-            if not data or not coin or not price or not income or not status:
-                st.warning("Report All Data.")
-            else:   
-                register_data = pd.DataFrame([{
-                    "Data": data.strftime("%d-%m-%Y"),
-                    "Coin": coin,
-                    "Preço (R$)": price,
-                    "Preço (U$)": dolar_price,
-                    "Preço Atual (R$)": 0,
-                    "Preço Atual (U$)": 0,
-                    "Valor Investido (R$)": income,
-                    "Qte": amount,
-                    "Status": status,
-                    "Exchange": exchange
-                }])
+    with c1:
+        with st.container(border=True):
+            st.markdown("<h1 style='text-align: center; '>Moedas Registradas</h1>", unsafe_allow_html=True)
 
-                updated_df = pd.concat([st.session_state['register_sheet'], register_data], ignore_index=True)
+            st.divider()
 
-                st.session_state['database'].conn.update(worksheet="DATA", data=updated_df)
+            edit_data_coins = st.data_editor(st.session_state['coin_sheet'], hide_index=True)
 
-                st.success("Trade Registed with Success!")
+            submit_btn_coins = st.button(label="Atualizar dados de moedas...")
+            
+            if submit_btn_coins:
+                try:
+                    st.session_state['database'].conn.update(worksheet="COINS", data=edit_data_coins)
+                    st.success("Tabela atualizada com sucesso!")
 
-    with coins_r:
-        coin_r = st.text_input("Insert a New Coin")
-        coin_nickname = st.text_input("Insert Coin Nickname")
+                except:
+                    st.warning("Tabela não atualizada!")
+                    st.stop()
 
-        register_coin = st.button("Submit New Coin")
+    with c2:
+        with st.container(border=True):
+            st.markdown("<h1 style='text-align: center; '>Corretoras Registradas</h1>", unsafe_allow_html=True)
 
-        if register_coin:
-            if not coin_r:
-                st.warning("Report All Data.")
-            else:
-                register_data_coin = pd.DataFrame([{
-                    "Coin": coin_r,
-                    "Nickname": coin_nickname
-                }])
+            st.divider()
 
-                updated_df_coin = pd.concat([st.session_state['coin_sheet'], register_data_coin], ignore_index=True)
+            edit_data_exchanges = st.data_editor(st.session_state['exchange_sheet'], hide_index=True)
 
-                st.session_state['database'].conn.update(worksheet="COINS", data=updated_df_coin)
+            submit_btn_exchanges = st.button(label="Atualizar dados de corretoras...")
+            
+            if submit_btn_exchanges:
+                try:
+                    st.session_state['database'].conn.update(worksheet="EXCHANGES", data=edit_data_exchanges)
+                    st.success("Tabela atualizada com sucesso!")
 
-                st.success("Coin Registed with Success")
-
-    with exchange_r:
-        ex_r = st.text_input("Insert New Exchange")
-
-        register_ex = st.button("Submit New Exchange")
-
-        if register_ex:
-            if not ex_r:
-                st.warning("Insert Some Exchange.")
-            else:
-                register_data_exchange = pd.DataFrame([{
-                    "Exchange": ex_r
-                }])
-
-                updated_df_exchange = pd.concat([st.session_state['exchange_sheet'], register_data_exchange], ignore_index=True)
-
-                st.session_state['database'].conn.update(worksheet="EXCHANGES", data=updated_df_exchange)
-
-                st.success("Exchange Registed with Success")
+                except:
+                    st.warning("Tabela não atualizada!")
+                    st.stop()
