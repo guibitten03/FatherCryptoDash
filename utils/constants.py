@@ -1,17 +1,3 @@
-COINS = [
-    "Bitcoin",
-    "Ethereum",
-    "Shiba Inu",
-    "Immutable X",
-    "Matic",
-    "Arkham",
-    "Chainlink",
-    "AEVO",
-    "Chilliz",
-    "Render",
-    "Avalanche"
-]
-
 OPS = [
     "Buy",
     "Sell",
@@ -23,6 +9,7 @@ FUND = [
     "Real"
 ]
 
+<<<<<<< HEAD
 EXCHANGES = [
     "Binance",
     "EQI",
@@ -30,6 +17,9 @@ EXCHANGES = [
 
 INITIAL_INCOME = 6743,35
 INITIAL_WALLET_CASH = 220
+=======
+INITIAL_INCOME = 17284,5
+>>>>>>> fc0356778cc07962ff885e20a0c1d7ec133372f1
 
 SHEET_LINK = "#"
 

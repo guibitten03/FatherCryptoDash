@@ -18,11 +18,13 @@ class Cookies:
                 st.session_state['database'] = Database(worksheets=[
                     ("DATA", 10),
                     ("COINS", 2),
-                    ("EXCHANGES", 1)
+                    ("EXCHANGES", 1),
+                    ("REVENUE", 3)
                 ])
                 st.session_state['register_sheet'] = st.session_state['database'].worksheets["DATA"].dropna(how="all")
                 st.session_state['coin_sheet'] = st.session_state['database'].worksheets["COINS"].dropna(how="all")
                 st.session_state['exchange_sheet'] = st.session_state['database'].worksheets["EXCHANGES"].dropna(how="all")
+                st.session_state['revenue_sheet'] = st.session_state['database'].worksheets["REVENUE"].dropna(how="all")
 
                 print("Database connected!")
 
