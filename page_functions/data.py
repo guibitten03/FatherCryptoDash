@@ -3,7 +3,7 @@ import pandas as pd
 
 from utils.constants import *
 
-def data_page():
+def register_page():
     st.title("🖋️ Cadastrar operações, moedas ou corretoras novas")
     st.markdown("Insira as informações nos formulários abaixo...")
 

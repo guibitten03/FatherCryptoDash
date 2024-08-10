@@ -1,6 +1,6 @@
 import streamlit as st
 
-def registers_page():
+def data_page():
     st.title("📁 Operações Registradas")
     st.markdown("Você pode ver todos as operações registradas abaixo!")
 

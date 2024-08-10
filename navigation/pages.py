@@ -1,9 +1,9 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-from page_functions.data import data_page
+from page_functions.data import register_page
 from page_functions.home import home_page
-from page_functions.registers import registers_page
+from page_functions.registers import data_page
 
 
 def sideBar():
@@ -19,6 +19,6 @@ def sideBar():
     if selected == "Início":
         home_page()
     if selected == "Registrar":
-        registers_page()
+        register_page()
     if selected == "Dados":
         data_page()
