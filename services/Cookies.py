@@ -12,14 +12,16 @@ class Cookies:
             st.session_state['config'] = dotenv_values(".env")
 
 
-    def database_cookie(self):
+    def database_cookie(self, connection_key:str = "connection_key"):
         if 'database' not in st.session_state:
             try:
-                st.session_state['database'] = Database(worksheets=[
-                    ("DATA", 10),
-                    ("COINS", 2),
-                    ("EXCHANGES", 1),
-                    ("REVENUE", 3)
+                st.session_state['database'] = Database(
+                    connection_key=connection_key,
+                    worksheets=[
+                        ("DATA", 10),
+                        ("COINS", 2),
+                        ("EXCHANGES", 1),
+                        ("REVENUE", 3)
                 ])
                 st.session_state['register_sheet'] = st.session_state['database'].worksheets["DATA"].dropna(how="all")
                 st.session_state['coin_sheet'] = st.session_state['database'].worksheets["COINS"].dropna(how="all")

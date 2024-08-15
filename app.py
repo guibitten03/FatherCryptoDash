@@ -1,20 +1,9 @@
 import streamlit as st
-
-from utils.constants import *
+from page_functions.Dashboard import Dashboard
+from page_functions.login import LoginPage
 
 st.set_page_config(layout="wide")
 
-from services.Cookies import Cookies
-cookies = Cookies()
-cookies.database_cookie()
-cookies.coinmarketcap_cookie()
-cookies.fiatprices_cookie()
+st.session_state['sheet_account'] = st.sidebar.selectbox("Selecione a conta...", options=["Guilherme", "Jader"])
 
-st.sidebar.image("assets/BUSINESS_LOGOTYPE.png")
-
-from navigation.pages import sideBar
-
-sideBar()
-
-from style.Style import Style
-Style()
+LoginPage().page(page_to_show=Dashboard)

@@ -214,13 +214,13 @@ def home_page():
 
             with c2:
                 with st.container(border=True):
-                    st.text(f"Preço Pago por Moeda: ")
                     st.markdown(f"###  {mean_price:.02f} R$")
+                    st.text(f"Preço Pago por Moeda: ")
                                 
             with c3:
                 with st.container(border=True):
-                    st.text(f"Preço Atual da Moeda:")
                     st.markdown(f"### {coin_filtered['Preço Atual (R$)'].values[0]:.02f} R$")
+                    st.text(f"Preço Atual da Moeda:")
 
 
 
@@ -250,8 +250,6 @@ def home_page():
                 qte -= qte_sell
 
             coin_current_amout[coin] = coin_current_price[coin] * qte
-
-        
 
         # # box = INITIAL_WALLET_CASH + rebuy_historical_df[rebuy_historical_df['Status'] == 'Sell']['Valor Investido (R$)'].sum() - rebuy_historical_df[rebuy_historical_df['Status'] == 'Buy']['Valor Investido (R$)'].sum()
 
@@ -339,6 +337,20 @@ def home_page():
                 )
 
                 st.plotly_chart(box_bar)
+
+        with st.container(border=True):
+            revenue_fig = go.Figure()
+
+            revenue_fig.add_trace(go.Bar(x=st.session_state['revenue_sheet'].tail(12)['Data'], y=st.session_state['revenue_sheet'].tail(12)['Amount']))
+            revenue_fig.add_trace(go.Scatter(x=st.session_state['revenue_sheet'].tail(12)['Data'], y=st.session_state['revenue_sheet'].tail(12)['Amount']))
+
+            revenue_fig.update_layout(
+                    title='Aportes ao longo do tempo',
+                    xaxis_title='Data',
+                    yaxis_title='Valor Total (R$)'
+                )
+
+            st.plotly_chart(revenue_fig)
 
 
 

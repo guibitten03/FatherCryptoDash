@@ -2,9 +2,9 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 
 class Database:
-    def __init__(self, worksheets: list = []):
+    def __init__(self, connection_key:str = "gsheets", worksheets:list = []):
         
-        self.conn = st.connection("gsheets", type=GSheetsConnection)
+        self.conn = st.connection(connection_key, type=GSheetsConnection)
         self.worksheets = {}
 
         for info in worksheets:
