@@ -1,14 +1,8 @@
 import streamlit as st
 
-<<<<<<< HEAD
-def register_page():
+def data_page():
     st.title("🖋️ Cadastrar operações, moedas ou corretoras novas")
     st.markdown("Insira as informações nos formulários abaixo...")
-=======
-def data_page():
-    st.title("📁 Operações Registradas")
-    st.markdown("Você pode ver todos as operações registradas abaixo!")
->>>>>>> fc0356778cc07962ff885e20a0c1d7ec133372f1
 
     f_c1, f_c2 = st.columns([3, 1], gap="small")
     
